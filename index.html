@@ -3,353 +3,695 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OrgMind — AI Assistant Builder</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>OrgMind — Intelligence, Grown</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f0e0c'/%3E%3Cpath d='M16 26 C16 26 8 20 8 13 C8 9 11.5 6 16 6 C20.5 6 24 9 24 13 C24 20 16 26 16 26Z' fill='%235a7a4a'/%3E%3Cpath d='M16 26 L16 12' stroke='%23a8c896' stroke-width='1' stroke-linecap='round' opacity='0.6'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0a0c10;
-  --bg2: #10141c;
-  --bg3: #161b26;
-  --border: rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.15);
-  --accent: #c8f542;
-  --accent2: #5effd8;
-  --text: #dde2ee;
-  --muted: #4a5568;
-  --dim: #7a8699;
-  --red: #ff4d6a;
+  --bg: #0f0e0c;
+  --bg2: #161410;
+  --bg3: #1e1b16;
+  --parchment: #e8e0d0;
+  --parchment2: #c8bfaa;
+  --parchment3: #8a8070;
+  --moss: #5a7a4a;
+  --moss2: #7a9e68;
+  --moss3: #a8c896;
+  --terracotta: #c87850;
+  --border: rgba(232,224,208,0.08);
+  --border2: rgba(232,224,208,0.15);
 }
 
-html, body {
-  height: 100%;
-  font-family: 'Syne', sans-serif;
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Jost', sans-serif;
   background: var(--bg);
-  color: var(--text);
+  color: var(--parchment);
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1000; opacity: 0.5;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 48px;
+  background: linear-gradient(to bottom, rgba(15,14,12,0.9) 0%, transparent 100%);
+}
+
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 300; letter-spacing: 0.08em;
+  color: var(--parchment); text-decoration: none;
+}
+
+.nav-links { display: flex; align-items: center; gap: 36px; }
+.nav-links a {
+  font-size: 12px; font-weight: 400; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--parchment3);
+  text-decoration: none; transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--parchment); }
+
+.nav-cta {
+  padding: 10px 24px;
+  border: 0.5px solid var(--border2);
+  border-radius: 2px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--parchment);
+  text-decoration: none; transition: all 0.3s;
+  background: transparent;
+}
+.nav-cta:hover { background: rgba(232,224,208,0.06); border-color: rgba(232,224,208,0.3); }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 120px 48px 80px;
+  position: relative;
   overflow: hidden;
+  text-align: center;
 }
 
-.view { display: none; height: 100vh; width: 100%; }
-.view.active { display: flex; flex-direction: column; animation: fadeIn .35s ease; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-
-#setup {
-  overflow-y: auto;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 40px 20px 60px;
-  background: radial-gradient(ellipse 80% 40% at 50% -10%, rgba(200,245,66,0.07) 0%, transparent 60%);
+/* Organic background blob */
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 40%, rgba(90,122,74,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 70% 60%, rgba(200,120,80,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 40% at 50% 80%, rgba(90,122,74,0.06) 0%, transparent 70%);
 }
 
-.logo {
-  font-size: 12px; font-weight: 700; letter-spacing: .2em;
-  text-transform: uppercase; color: var(--accent);
-  display: flex; align-items: center; gap: 8px; margin-bottom: 36px;
+/* Animated organic ring */
+.hero-ring {
+  position: absolute;
+  width: 600px; height: 600px;
+  border: 0.5px solid rgba(90,122,74,0.15);
+  border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: morph 20s ease-in-out infinite;
 }
-.logo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-
-.card {
-  width: 100%; max-width: 520px;
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 18px; padding: 40px 36px; position: relative;
+.hero-ring:nth-child(2) {
+  width: 800px; height: 800px;
+  border-color: rgba(232,224,208,0.04);
+  animation: morph 28s ease-in-out infinite reverse;
+  animation-delay: -5s;
 }
-.card::after {
-  content: ''; position: absolute; top: 0; left: 12%; right: 12%; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.5;
+.hero-ring:nth-child(3) {
+  width: 400px; height: 400px;
+  border-color: rgba(200,120,80,0.08);
+  animation: morph 16s ease-in-out infinite;
+  animation-delay: -10s;
 }
 
-.card-title { font-size: 26px; font-weight: 800; margin-bottom: 8px; line-height: 1.2; }
-.card-title em { color: var(--accent); font-style: normal; }
-.card-sub { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 300; color: var(--dim); margin-bottom: 30px; line-height: 1.7; }
-
-.field { margin-bottom: 20px; }
-.field label { display: block; font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; }
-.field input, .field textarea {
-  width: 100%; background: var(--bg3); border: 1px solid var(--border);
-  border-radius: 9px; padding: 12px 14px; color: var(--text);
-  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 300;
-  outline: none; resize: none; transition: border-color .2s, box-shadow .2s;
+@keyframes morph {
+  0%,100% { border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%; transform: translate(-50%,-50%) rotate(0deg); }
+  25% { border-radius: 40% 60% 45% 55% / 55% 45% 60% 40%; }
+  50% { border-radius: 55% 45% 40% 60% / 40% 60% 55% 45%; transform: translate(-50%,-50%) rotate(180deg); }
+  75% { border-radius: 45% 55% 60% 40% / 60% 40% 45% 55%; }
 }
-.field input:focus, .field textarea:focus {
-  border-color: rgba(200,245,66,.35);
-  box-shadow: 0 0 0 3px rgba(200,245,66,.05);
+
+.hero-content { position: relative; z-index: 2; max-width: 900px; }
+
+.hero-tag {
+  display: inline-block;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--moss2);
+  border: 0.5px solid rgba(90,122,74,0.4);
+  padding: 6px 16px; border-radius: 100px;
+  margin-bottom: 40px;
+  animation: fadeUp 1s ease both;
 }
-.field input::placeholder, .field textarea::placeholder { color: var(--muted); }
 
-.api-hint { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 5px; }
-.api-hint a { color: var(--accent2); text-decoration: none; }
-
-.row2 { display: grid; grid-template-columns: 1fr auto; gap: 12px; }
-.row2 .field { margin-bottom: 0; }
-
-.upload-zone {
-  border: 1px dashed var(--border2); border-radius: 9px;
-  padding: 22px; text-align: center; cursor: pointer;
-  background: var(--bg3); position: relative; transition: all .2s;
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(52px, 8vw, 96px);
+  font-weight: 300; line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin-bottom: 32px;
+  animation: fadeUp 1s ease 0.15s both;
 }
-.upload-zone:hover { border-color: rgba(200,245,66,.35); }
-.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-.uz-icon { font-size: 22px; margin-bottom: 7px; }
-.uz-label { font-size: 13px; color: var(--dim); }
-.uz-label span { color: var(--accent); }
-.uz-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 4px; }
+.hero-title em { font-style: italic; color: var(--moss3); }
+.hero-title .line2 { display: block; color: var(--parchment2); }
 
-.files-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-.file-item { display: flex; align-items: center; gap: 9px; background: var(--bg3); border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); }
-.fn { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fx { cursor: pointer; color: var(--red); font-size: 16px; line-height: 1; }
-.fdot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent2); flex-shrink: 0; }
+.hero-sub {
+  font-size: 16px; font-weight: 300; line-height: 1.8;
+  color: var(--parchment3); max-width: 560px; margin: 0 auto 56px;
+  animation: fadeUp 1s ease 0.3s both;
+}
+
+.hero-actions {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  animation: fadeUp 1s ease 0.45s both;
+}
 
 .btn-primary {
-  width: 100%; padding: 14px; background: var(--accent);
-  color: #080a0f; border: none; border-radius: 9px;
-  font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
-  letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
-  transition: all .2s; margin-top: 8px;
+  padding: 16px 40px;
+  background: var(--moss);
+  color: var(--parchment);
+  border: none; border-radius: 2px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.14em;
+  text-transform: uppercase; cursor: pointer;
+  text-decoration: none; display: inline-block;
+  transition: all 0.3s;
 }
-.btn-primary:hover { background: #d4ff55; box-shadow: 0 0 24px rgba(200,245,66,.25); transform: translateY(-1px); }
-.btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-primary:hover { background: var(--moss2); transform: translateY(-1px); }
 
-#chat { background: var(--bg); }
+.btn-secondary {
+  padding: 16px 40px;
+  background: transparent;
+  color: var(--parchment2);
+  border: 0.5px solid var(--border2); border-radius: 2px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.14em;
+  text-transform: uppercase; cursor: pointer;
+  text-decoration: none; display: inline-block;
+  transition: all 0.3s;
+}
+.btn-secondary:hover { border-color: var(--parchment3); color: var(--parchment); }
 
-.chat-header { display: flex; align-items: center; gap: 13px; padding: 15px 24px; border-bottom: 1px solid var(--border); background: var(--bg2); flex-shrink: 0; }
-.h-av { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
-.h-info { flex: 1; min-width: 0; }
-.h-name { font-size: 15px; font-weight: 700; }
-.h-status { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 5px; margin-top: 2px; }
-.sdot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: blink 2s infinite; }
+.hero-scroll {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  animation: fadeUp 1s ease 0.8s both;
+}
+.scroll-line {
+  width: 0.5px; height: 48px;
+  background: linear-gradient(to bottom, transparent, var(--moss2));
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+.scroll-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--parchment3); }
+@keyframes scrollPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* DIVIDER */
+.organic-divider {
+  width: 100%; overflow: hidden; line-height: 0;
+  padding: 0 48px;
+}
+.organic-divider svg { width: 100%; opacity: 0.12; }
+
+/* SECTION */
+section { padding: 120px 48px; max-width: 1200px; margin: 0 auto; }
+
+.section-tag {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--moss2); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-tag::before {
+  content: ''; display: block; width: 24px; height: 0.5px;
+  background: var(--moss2);
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 300; line-height: 1.1;
+  margin-bottom: 24px;
+}
+.section-title em { font-style: italic; color: var(--moss3); }
+
+.section-body {
+  font-size: 16px; font-weight: 300; line-height: 1.9;
+  color: var(--parchment3); max-width: 580px;
+}
+
+/* HOW IT WORKS */
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 0.5px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 72px;
+}
+
+.how-item {
+  background: var(--bg2);
+  padding: 48px 36px;
+  position: relative;
+  transition: background 0.3s;
+}
+.how-item:hover { background: var(--bg3); }
+
+.how-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 64px; font-weight: 300;
+  color: rgba(90,122,74,0.2);
+  line-height: 1; margin-bottom: 24px;
+}
+
+.how-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 400;
+  margin-bottom: 12px; color: var(--parchment);
+}
+
+.how-body {
+  font-size: 14px; font-weight: 300; line-height: 1.8;
+  color: var(--parchment3);
+}
+
+.how-icon {
+  width: 32px; height: 32px; margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+/* FEATURES */
+.features-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  margin-top: 80px;
+}
+
+.features-list { display: flex; flex-direction: column; gap: 0; }
+
+.feature-item {
+  padding: 28px 0;
+  border-bottom: 0.5px solid var(--border);
+  cursor: default;
+  transition: all 0.3s;
+}
+.feature-item:first-child { border-top: 0.5px solid var(--border); }
+
+.feature-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0;
+}
+.feature-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 400; color: var(--parchment2);
+  transition: color 0.3s;
+}
+.feature-item:hover .feature-name { color: var(--parchment); }
+.feature-arrow { color: var(--moss2); font-size: 18px; transition: transform 0.3s; }
+.feature-item:hover .feature-arrow { transform: translateX(4px); }
+.feature-desc {
+  font-size: 13px; font-weight: 300; line-height: 1.7;
+  color: var(--parchment3); margin-top: 10px;
+  max-height: 0; overflow: hidden; transition: max-height 0.4s ease, opacity 0.3s;
+  opacity: 0;
+}
+.feature-item:hover .feature-desc { max-height: 80px; opacity: 1; }
+
+.features-visual {
+  position: relative; height: 480px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.visual-card {
+  background: var(--bg2); border: 0.5px solid var(--border2);
+  border-radius: 8px; padding: 32px;
+  width: 100%; position: relative; overflow: hidden;
+}
+.visual-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--moss2), transparent); opacity: 0.4;
+}
+
+.vc-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+}
+.vc-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.vc-msg {
+  padding: 12px 16px; border-radius: 8px; font-size: 13px;
+  font-weight: 300; line-height: 1.6; margin-bottom: 10px;
+}
+.vc-msg.user {
+  background: rgba(90,122,74,0.1); border: 0.5px solid rgba(90,122,74,0.2);
+  margin-left: 20%; color: var(--parchment2);
+}
+.vc-msg.ai {
+  background: var(--bg3); border: 0.5px solid var(--border);
+  margin-right: 20%; color: var(--parchment3);
+}
+
+.vc-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 100px;
+  background: rgba(90,122,74,0.1); border: 0.5px solid rgba(90,122,74,0.3);
+  font-size: 10px; letter-spacing: 0.1em; color: var(--moss3);
+  margin-top: 16px;
+}
+.badge-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--moss2); animation: blink 2s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-.btn-ghost { padding: 7px 14px; background: transparent; border: 1px solid var(--border); border-radius: 7px; color: var(--dim); font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; transition: all .2s; white-space: nowrap; }
-.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+/* PRICING */
+.pricing-section { background: var(--bg2); margin: 0; max-width: 100%; padding: 120px 48px; }
+.pricing-inner { max-width: 1200px; margin: 0 auto; }
 
-.messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
-.messages::-webkit-scrollbar { width: 3px; }
-.messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border);
+  border: 0.5px solid var(--border); border-radius: 4px;
+  overflow: hidden; margin-top: 72px;
+}
 
-.msg { display: flex; gap: 10px; max-width: 84%; animation: mIn .25s ease; }
-@keyframes mIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
-.msg.user { align-self: flex-end; flex-direction: row-reverse; }
-.msg.assistant { align-self: flex-start; }
+.pricing-card {
+  background: var(--bg); padding: 48px 36px;
+  position: relative; transition: background 0.3s;
+}
+.pricing-card.featured { background: var(--bg3); }
+.pricing-card.featured::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--moss), var(--moss2));
+}
 
-.m-av { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
-.m-bub { padding: 12px 15px; border-radius: 12px; font-size: 14px; line-height: 1.65; }
-.msg.user .m-bub { background: #1a2235; border: 1px solid rgba(200,245,66,.1); border-radius: 12px 3px 12px 12px; }
-.msg.assistant .m-bub { background: var(--bg2); border: 1px solid var(--border); border-radius: 3px 12px 12px 12px; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 300; }
+.pricing-label {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--parchment3); margin-bottom: 20px;
+}
+.pricing-card.featured .pricing-label { color: var(--moss2); }
 
-.typing { display: flex; gap: 4px; align-items: center; padding: 3px 0; }
-.td { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); animation: tb 1.2s infinite; }
-.td:nth-child(2){animation-delay:.2s} .td:nth-child(3){animation-delay:.4s}
-@keyframes tb { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+.pricing-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 56px; font-weight: 300; line-height: 1;
+  margin-bottom: 8px; color: var(--parchment);
+}
+.pricing-price sup { font-size: 24px; vertical-align: super; }
+.pricing-period { font-size: 12px; color: var(--parchment3); margin-bottom: 32px; }
 
-.welcome { text-align: center; padding: 60px 20px; color: var(--muted); display: flex; flex-direction: column; align-items: center; }
-.w-icon { font-size: 40px; margin-bottom: 14px; }
-.w-title { font-size: 16px; font-weight: 700; color: var(--dim); margin-bottom: 8px; }
-.w-sub { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 300; line-height: 1.8; color: var(--muted); max-width: 300px; }
+.pricing-features { list-style: none; margin-bottom: 40px; }
+.pricing-features li {
+  font-size: 13px; font-weight: 300; color: var(--parchment3);
+  padding: 8px 0; border-bottom: 0.5px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.pricing-features li::before { content: '—'; color: var(--moss2); font-size: 12px; }
+.pricing-features li.inactive { opacity: 0.35; }
+.pricing-features li.inactive::before { color: var(--parchment3); }
 
-.err-msg { align-self: center; background: rgba(255,77,106,.07); border: 1px solid rgba(255,77,106,.2); border-radius: 9px; padding: 10px 16px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--red); max-width: 90%; text-align: center; }
+.pricing-btn {
+  display: block; width: 100%; padding: 14px;
+  text-align: center; text-decoration: none;
+  font-family: 'Jost', sans-serif; font-size: 11px;
+  font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+  border-radius: 2px; transition: all 0.3s; cursor: pointer; border: none;
+}
+.pricing-btn.outline {
+  background: transparent; color: var(--parchment2);
+  border: 0.5px solid var(--border2);
+}
+.pricing-btn.outline:hover { border-color: var(--parchment3); color: var(--parchment); }
+.pricing-btn.solid {
+  background: var(--moss); color: var(--parchment);
+}
+.pricing-btn.solid:hover { background: var(--moss2); }
 
-.input-area { padding: 14px 24px 20px; border-top: 1px solid var(--border); background: var(--bg2); flex-shrink: 0; }
-.input-row { display: flex; gap: 10px; align-items: flex-end; background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; transition: all .2s; }
-.input-row:focus-within { border-color: rgba(200,245,66,.3); box-shadow: 0 0 0 3px rgba(200,245,66,.04); }
-#chat-input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 300; resize: none; max-height: 110px; line-height: 1.6; min-height: 22px; }
-#chat-input::placeholder { color: var(--muted); }
+/* MANIFESTO */
+.manifesto {
+  text-align: center; padding: 160px 48px;
+  position: relative; overflow: hidden;
+}
+.manifesto-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(90,122,74,0.08) 0%, transparent 70%);
+}
+.manifesto-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 300; font-style: italic;
+  line-height: 1.4; color: var(--parchment2);
+  max-width: 800px; margin: 0 auto 32px;
+  position: relative; z-index: 1;
+}
+.manifesto-attr {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--parchment3); position: relative; z-index: 1;
+}
 
-.sbtn { width: 32px; height: 32px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; color: #080a0f; }
-.sbtn:hover { background: #d4ff55; box-shadow: 0 0 12px rgba(200,245,66,.3); }
-.sbtn:disabled { opacity: .3; cursor: not-allowed; box-shadow: none; }
+/* CTA */
+.cta-section {
+  padding: 120px 48px; text-align: center;
+  border-top: 0.5px solid var(--border);
+}
+.cta-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 300; line-height: 1.1; margin-bottom: 24px;
+}
+.cta-title em { font-style: italic; color: var(--moss3); }
+.cta-sub { font-size: 15px; font-weight: 300; color: var(--parchment3); margin-bottom: 48px; }
 
-.input-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding: 0 2px; }
-.pby { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
-.pby span { color: var(--accent); }
-.dbadge { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
-.dbd { width: 4px; height: 4px; border-radius: 50%; background: var(--accent2); }
+/* FOOTER */
+footer {
+  padding: 40px 48px; border-top: 0.5px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 300; color: var(--parchment3);
+}
+.footer-copy { font-size: 11px; color: var(--parchment3); letter-spacing: 0.05em; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 11px; color: var(--parchment3); text-decoration: none; letter-spacing: 0.08em; transition: color 0.2s; }
+.footer-links a:hover { color: var(--parchment); }
+
+@media (max-width: 768px) {
+  nav { padding: 20px 24px; }
+  .nav-links { display: none; }
+  section { padding: 80px 24px; }
+  .how-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .features-layout { grid-template-columns: 1fr; }
+  .features-visual { display: none; }
+  .hero { padding: 100px 24px 60px; }
+  footer { flex-direction: column; gap: 16px; text-align: center; }
+}
 </style>
 </head>
 <body>
 
-<div id="setup" class="view active">
-  <div class="logo"><div class="logo-dot"></div>OrgMind</div>
-  <div class="card">
-    <div class="card-title">Build your <em>AI assistant</em></div>
-    <div class="card-sub">Train it on your docs. Brand it as your own. Deploy in minutes.</div>
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">OrgMind</a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+  </div>
+  <a href="/app" class="nav-cta">Start building</a>
+</nav>
 
-    <div class="field">
-      <label>Assistant Name</label>
-      <input type="text" id="aname" placeholder="e.g. Aria, Max, Zoe..." maxlength="40">
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-ring"></div>
+  <div class="hero-ring"></div>
+  <div class="hero-ring"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Intelligence, grown not built</div>
+    <h1 class="hero-title">
+      Your business,<br>
+      <em>its own mind.</em>
+      <span class="line2">Finally.</span>
+    </h1>
+    <p class="hero-sub">OrgMind lets any organization grow a custom AI assistant — trained on your knowledge, shaped by your voice, alive to your needs.</p>
+    <div class="hero-actions">
+      <a href="/app" class="btn-primary">Grow your assistant</a>
+      <a href="#how" class="btn-secondary">See how it works</a>
     </div>
+  </div>
 
-    <div class="row2">
-      <div class="field">
-        <label>Persona & Instructions</label>
-        <textarea id="apersona" rows="4" placeholder="Describe how your assistant should behave. E.g. 'You are a friendly support agent for Acme Corp. Be concise and professional.'" maxlength="1200"></textarea>
-      </div>
-      <div class="field" style="min-width:70px;">
-        <label>Icon</label>
-        <input type="text" id="aemoji" placeholder="🤖" maxlength="4" style="width:70px;text-align:center;font-size:20px;padding:10px;">
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Knowledge Documents <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;">(optional · max 5 files)</span></label>
-      <div class="upload-zone" id="uzone">
-        <input type="file" id="finput" multiple accept=".txt,.md,.csv">
-        <div class="uz-icon">📎</div>
-        <div class="uz-label">Drop files here or <span>browse</span></div>
-        <div class="uz-sub">Supports TXT, MD, CSV</div>
-      </div>
-      <div class="files-list" id="flist"></div>
-    </div>
-
-    <button class="btn-primary" id="launch-btn" onclick="launch()">Launch Assistant →</button>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span class="scroll-label">Explore</span>
   </div>
 </div>
 
-<div id="chat" class="view">
-  <div class="chat-header">
-    <div class="h-av" id="h-av">🤖</div>
-    <div class="h-info">
-      <div class="h-name" id="h-name">Assistant</div>
-      <div class="h-status"><div class="sdot"></div> Online · Powered by OrgMind</div>
-    </div>
-    <button class="btn-ghost" onclick="goBack()">← Reconfigure</button>
-  </div>
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-tag">Process</div>
+  <h2 class="section-title">Three steps to a<br><em>living assistant</em></h2>
+  <p class="section-body">Like any organism, your AI assistant grows from what you feed it — your documents, your voice, your knowledge.</p>
 
-  <div class="messages" id="msgs">
-    <div class="welcome" id="welcome">
-      <div class="w-icon" id="w-icon">🤖</div>
-      <div class="w-title" id="w-title">Ready to help</div>
-      <div class="w-sub">Ask me anything. I'll use your documents and instructions to give you the best answer.</div>
+  <div class="how-grid">
+    <div class="how-item">
+      <div class="how-number">01</div>
+      <h3 class="how-title">Feed it knowledge</h3>
+      <p class="how-body">Upload your documents, FAQs, guides, and processes. OrgMind digests them and makes them searchable in natural conversation.</p>
+    </div>
+    <div class="how-item">
+      <div class="how-number">02</div>
+      <h3 class="how-title">Shape its voice</h3>
+      <p class="how-body">Give your assistant a name, a personality, a purpose. Define how it speaks, what it knows, and where its boundaries are.</p>
+    </div>
+    <div class="how-item">
+      <div class="how-number">03</div>
+      <h3 class="how-title">Let it grow</h3>
+      <p class="how-body">Deploy to your team or customers. Your assistant learns from every interaction, getting sharper and more useful over time.</p>
     </div>
   </div>
+</section>
 
-  <div class="input-area">
-    <div class="input-row">
-      <textarea id="chat-input" placeholder="Ask your assistant anything..." rows="1"
-        onkeydown="onKey(event)" oninput="resize(this)"></textarea>
-      <button class="sbtn" id="sbtn" onclick="send()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-        </svg>
-      </button>
+<!-- FEATURES -->
+<section id="features" style="padding-top: 0;">
+  <div class="features-layout">
+    <div>
+      <div class="section-tag">Features</div>
+      <h2 class="section-title">Built for the<br><em>way you work</em></h2>
+      <div class="features-list">
+        <div class="feature-item">
+          <div class="feature-header">
+            <span class="feature-name">Document intelligence</span>
+            <span class="feature-arrow">→</span>
+          </div>
+          <p class="feature-desc">Upload PDFs, CSVs, markdown files and more. Your assistant references them precisely when answering questions.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-header">
+            <span class="feature-name">Custom persona</span>
+            <span class="feature-arrow">→</span>
+          </div>
+          <p class="feature-desc">Name it, brand it, instruct it. Your assistant speaks in your voice and stays on-brand in every response.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-header">
+            <span class="feature-name">Instant deployment</span>
+            <span class="feature-arrow">→</span>
+          </div>
+          <p class="feature-desc">From setup to live in minutes. No engineering team required. Share a link and your assistant is ready to help.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-header">
+            <span class="feature-name">Powered by Claude</span>
+            <span class="feature-arrow">→</span>
+          </div>
+          <p class="feature-desc">Built on Anthropic's Claude — one of the world's most capable and trustworthy AI models.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-header">
+            <span class="feature-name">Full conversation memory</span>
+            <span class="feature-arrow">→</span>
+          </div>
+          <p class="feature-desc">Each session maintains context, letting users have natural, flowing conversations rather than disconnected queries.</p>
+        </div>
+      </div>
     </div>
-    <div class="input-footer">
-      <div class="pby">Powered by <span>OrgMind</span> × Claude</div>
-      <div class="dbadge" id="dbadge"></div>
+
+    <div class="features-visual">
+      <div class="visual-card">
+        <div class="vc-header">
+          <div class="vc-dot" style="background:rgba(232,224,208,0.2);"></div>
+          <div class="vc-dot" style="background:rgba(232,224,208,0.1);"></div>
+          <div class="vc-dot" style="background:rgba(90,122,74,0.3);"></div>
+          <span style="font-size:11px;color:var(--parchment3);margin-left:8px;letter-spacing:0.08em;">Aria — Acme Support</span>
+        </div>
+        <div class="vc-msg user">What's your return policy for enterprise customers?</div>
+        <div class="vc-msg ai">Enterprise customers enjoy a 90-day return window with dedicated support. Based on your account tier, you'd also qualify for our white-glove exchange program — would you like me to initiate that?</div>
+        <div class="vc-msg user">Yes please, for order #4821</div>
+        <div class="vc-msg ai">I've flagged order #4821 for the exchange program. Your dedicated rep Sarah will reach out within 2 hours. Is there anything else I can help with?</div>
+        <div class="vc-badge"><div class="badge-dot"></div> Trained on 12 documents</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<div class="manifesto">
+  <div class="manifesto-bg"></div>
+  <p class="manifesto-quote">"The most powerful technology disappears into the fabric of everyday life — until it is indistinguishable from nature itself."</p>
+  <p class="manifesto-attr">The OrgMind philosophy</p>
+</div>
+
+<!-- PRICING -->
+<div class="pricing-section" id="pricing">
+  <div class="pricing-inner">
+    <div class="section-tag">Pricing</div>
+    <h2 class="section-title">Grow at your<br><em>own pace</em></h2>
+    <p class="section-body">Start free. Scale as your assistant does.</p>
+
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-label">Seed</div>
+        <div class="pricing-price"><sup>$</sup>0</div>
+        <div class="pricing-period">Free forever</div>
+        <ul class="pricing-features">
+          <li>1 assistant</li>
+          <li>3 documents</li>
+          <li>100 messages / month</li>
+          <li class="inactive">Custom domain</li>
+          <li class="inactive">Analytics</li>
+          <li class="inactive">Priority support</li>
+        </ul>
+        <a href="/app" class="pricing-btn outline">Start free</a>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="pricing-label">Grove</div>
+        <div class="pricing-price"><sup>$</sup>49</div>
+        <div class="pricing-period">per month</div>
+        <ul class="pricing-features">
+          <li>5 assistants</li>
+          <li>Unlimited documents</li>
+          <li>5,000 messages / month</li>
+          <li>Custom domain</li>
+          <li>Usage analytics</li>
+          <li class="inactive">Priority support</li>
+        </ul>
+        <a href="/app" class="pricing-btn solid">Get started</a>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-label">Forest</div>
+        <div class="pricing-price"><sup>$</sup>149</div>
+        <div class="pricing-period">per month</div>
+        <ul class="pricing-features">
+          <li>Unlimited assistants</li>
+          <li>Unlimited documents</li>
+          <li>Unlimited messages</li>
+          <li>Custom domain</li>
+          <li>Advanced analytics</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="/app" class="pricing-btn outline">Contact us</a>
+      </div>
     </div>
   </div>
 </div>
 
-<script>
-let config={}, docs=[], history=[], loading=false, uploadedFiles=[];
+<!-- CTA -->
+<div class="cta-section">
+  <h2 class="cta-title">Ready to grow<br><em>something intelligent?</em></h2>
+  <p class="cta-sub">Join the organizations building smarter with OrgMind.</p>
+  <a href="/app" class="btn-primary">Grow your assistant →</a>
+</div>
 
-document.getElementById('finput').addEventListener('change', function(){ handleFiles(Array.from(this.files)); });
-const uzone=document.getElementById('uzone');
-uzone.addEventListener('dragover',e=>{e.preventDefault();uzone.style.borderColor='rgba(200,245,66,.4)';});
-uzone.addEventListener('dragleave',()=>uzone.style.borderColor='');
-uzone.addEventListener('drop',e=>{e.preventDefault();uzone.style.borderColor='';handleFiles(Array.from(e.dataTransfer.files));});
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">OrgMind</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="footer-copy">© 2026 OrgMind. All rights reserved.</div>
+</footer>
 
-function handleFiles(files){
-  files.forEach(f=>{if(uploadedFiles.length<5&&!uploadedFiles.find(u=>u.name===f.name))uploadedFiles.push(f);});
-  renderFiles();
-}
-function renderFiles(){
-  document.getElementById('flist').innerHTML=uploadedFiles.map((f,i)=>`
-    <div class="file-item"><div class="fdot"></div><div class="fn">${f.name}</div><div class="fx" onclick="rmFile(${i})">×</div></div>`).join('');
-}
-function rmFile(i){uploadedFiles.splice(i,1);renderFiles();}
-
-async function launch(){
-  const name=document.getElementById('aname').value.trim()||'Assistant';
-  const emoji=document.getElementById('aemoji').value.trim()||'🤖';
-  const persona=document.getElementById('apersona').value.trim();
-  const btn=document.getElementById('launch-btn');
-  btn.disabled=true; btn.textContent='Setting up...';
-
-  const rdocs=[];
-  for(const f of uploadedFiles){try{rdocs.push(`--- ${f.name} ---\n${await f.text()}`);}catch{}}
-  docs=rdocs; config={name,emoji,persona}; history=[];
-
-  document.getElementById('h-av').textContent=emoji;
-  document.getElementById('h-name').textContent=name;
-  document.getElementById('w-icon').textContent=emoji;
-  document.getElementById('w-title').textContent=`${name} is ready`;
-  if(docs.length) document.getElementById('dbadge').innerHTML=`<div class="dbd"></div>${docs.length} doc${docs.length>1?'s':''} loaded`;
-
-  btn.disabled=false; btn.textContent='Launch Assistant →';
-  show('chat');
-}
-
-function goBack(){
-  show('setup'); history=[];
-  document.getElementById('msgs').innerHTML=`<div class="welcome" id="welcome"><div class="w-icon">🤖</div><div class="w-title">Ready to help</div><div class="w-sub">Ask me anything.</div></div>`;
-}
-
-function show(id){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function sysPrompt(){
-  let s=config.persona||`You are ${config.name}, a helpful AI assistant.`;
-  if(docs.length) s+=`\n\nKnowledge base:\n\n${docs.join('\n\n')}\n\nPrioritize these docs when answering. If the answer isn't there, say so.`;
-  return s;
-}
-
-function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px';}
-function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
-
-function addMsg(role,content){
-  const w=document.getElementById('welcome'); if(w) w.remove();
-  const msgs=document.getElementById('msgs');
-  const el=document.createElement('div');
-  el.className=`msg ${role}`;
-  el.innerHTML=`<div class="m-av">${role==='user'?'👤':config.emoji||'🤖'}</div><div class="m-bub">${content.replace(/\n/g,'<br>')}</div>`;
-  msgs.appendChild(el); msgs.scrollTop=msgs.scrollHeight;
-}
-
-function showTyping(){
-  const msgs=document.getElementById('msgs');
-  const el=document.createElement('div');
-  el.className='msg assistant'; el.id='typing';
-  el.innerHTML=`<div class="m-av">${config.emoji||'🤖'}</div><div class="m-bub"><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
-  msgs.appendChild(el); msgs.scrollTop=msgs.scrollHeight;
-}
-function rmTyping(){const t=document.getElementById('typing');if(t)t.remove();}
-
-async function send(){
-  if(loading) return;
-  const inp=document.getElementById('chat-input');
-  const text=inp.value.trim(); if(!text) return;
-  inp.value=''; inp.style.height='auto';
-  loading=true; document.getElementById('sbtn').disabled=true;
-  addMsg('user',text); history.push({role:'user',content:text}); showTyping();
-
-  try{
-    const res=await fetch('/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysPrompt(),messages:history})
-    });
-    const data=await res.json(); rmTyping();
-    if(data.error){
-      const e=document.createElement('div'); e.className='err-msg';
-      e.textContent=`Error: ${data.error.message||JSON.stringify(data.error)}`;
-      document.getElementById('msgs').appendChild(e);
-    } else {
-      const reply=data.content?.[0]?.text||'(no response)';
-      history.push({role:'assistant',content:reply}); addMsg('assistant',reply);
-    }
-  } catch(err){
-    rmTyping();
-    const e=document.createElement('div'); e.className='err-msg';
-    e.textContent='Connection error. Please try again.';
-    document.getElementById('msgs').appendChild(e);
-    document.getElementById('msgs').scrollTop=document.getElementById('msgs').scrollHeight;
-  }
-  loading=false; document.getElementById('sbtn').disabled=false;
-}
-</script>
 </body>
 </html>
